@@ -7,9 +7,10 @@ import winsound
 import os
 import keyboard  # 用于监听键盘事件
 import datetime  # 添加 datetime 模块
+import re  # 添加正则表达式模块
 
 # 配置部分
-CONFIG_FILE = 'keys.json'
+CONFIG_FILE = 'config.json'
 
 # Tesseract 环境配置
 os.environ["LANGDATA_PATH"] = r"D:\my_project\DeltaForceKeyBot-main\tessdata-4.1.0"
@@ -18,9 +19,13 @@ pytesseract.pytesseract.tesseract_cmd = r'C:\Program Files\Tesseract-OCR\tessera
 
 # 全局变量
 keys_config = None
+isLoop = False # 是否循环购买
+isDebug = False # 是否开启调试模式
 is_running = False  # 控制循环是否运行
 is_paused = False   # 控制循环是否暂停
 screen_width, screen_height = pyautogui.size()
+
+import re  # 添加正则表达式模块
 
 def load_keys_config():
     """加载钥匙价格配置文件（只读取一次）"""
@@ -30,14 +35,20 @@ def load_keys_config():
 
     try:
         with open(CONFIG_FILE, 'r', encoding='utf-8') as f:
-            config = json.load(f)
+            # 移除注释
+            content = f.read()
+            # 使用正则表达式移除以 // 或 # 开头的注释
+            content = re.sub(r'//.*|#.*', '', content)
+            config = json.loads(content)  # 解析为 JSON
             keys_config = config.get('keys', [])
+            isLoop = config.get('isLoop',False)
+            isDebug = config.get('isDebug',False)
             return keys_config
     except FileNotFoundError:
         print(f"[错误] 配置文件 {CONFIG_FILE} 不存在")
         return []
-    except json.JSONDecodeError:
-        print(f"[错误] 配置文件 {CONFIG_FILE} 格式错误")
+    except json.JSONDecodeError as e:
+        print(f"[错误] 配置文件 {CONFIG_FILE} 格式错误: {e}")
         return []
     except Exception as e:
         print(f"[错误] 读取配置时发生未知错误: {str(e)}")
@@ -74,24 +85,26 @@ def getCardPrice():
         return None
 
 def getCardName():
-    """获取当前卡片名称"""
-    screen_width, screen_height = pyautogui.size()
-    region_width = int(screen_width * 0.1)  # 区域宽度为屏幕宽度的 10%
-    region_height = int(screen_height * 0.05)  # 区域高度为屏幕高度的 10%
-    region_left = int(screen_width * 0.768)
-    region_top = int(screen_height * 0.145)
-    region = (region_left, region_top - 25, region_width, region_height)
+  """获取当前卡片名称"""
+  screen_width, screen_height = pyautogui.size()
+  region_width = int(screen_width * 0.1)  # 区域宽度为屏幕宽度的 10%
+  region_height = int(screen_height * 0.05)  # 区域高度为屏幕高度的 10%
+  region_left = int(screen_width * 0.768)
+  region_top = int(screen_height * 0.145)
+  region = (region_left, region_top - 25, region_width, region_height)
 
-    screenshot = take_screenshot(region=region, threshold=100)
-    screenshot.save("./s.png")
-    text = pytesseract.image_to_string(screenshot, lang='chi_sim', config="--psm 10")
-    text = text.replace(" ", "").strip()  # 清理空格和换行符
-    #print(f"提取的卡片名称: {text}")
-    return text
+  screenshot = take_screenshot(region=region, threshold=100)
+  screenshot.save("./s.png")
+  # 使用更适合中文识别的配置
+  text = pytesseract.image_to_string(
+    screenshot, lang='chi_sim', config="--psm 7 -c tessedit_char_whitelist=0123456789ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz一二三四五六七八九十"
+  )
+  text = text.replace(" ", "").strip()  # 清理空格和换行符
+  return text
 
-def log_purchase(card_name, price, premium):
+def log_purchase(card_name, ideal_price, price, premium):
     """记录购买信息到 logs.txt"""
-    log_entry = f"购买时间：{datetime.datetime.now():%Y-%m-%d %H:%M:%S} | 卡片名称: {card_name} | 价格: {price} | 溢价: {premium:.2f}%\n"
+    log_entry = f"购买时间：{datetime.datetime.now():%Y-%m-%d %H:%M:%S} | 卡片名称: {card_name} | 理想价格: {ideal_price} | 购买价格: {price} | 溢价: {premium:.2f}%\n"
     with open("logs.txt", "a", encoding="utf-8") as log_file:
         log_file.write(log_entry)
 
@@ -122,10 +135,13 @@ def price_check_flow(card_info):
             esc_pressed = True
         return False
 
-    base_price = card_info.get('base_price', 0)
-    ideal_price = card_info.get('ideal_price', base_price)
-    max_price = card_info.get('base_price') * 1.1  # 最高溢价 10%
-    premium = ((current_price / base_price) - 1) * 100
+    # base_price = card_info.get('base_price', 0)
+    floating_percentage_range = card_info.get('floating_percentage_range', 0.1)
+    ideal_price = card_info.get('ideal_price', 0)
+
+    max_price = ideal_price + (ideal_price * floating_percentage_range)
+
+    premium = ((current_price / ideal_price) - 1) * 100
 
     check_card_name = card_info.get("name")
     print(f"当前门卡:{card_name}\n需要购买的卡:{check_card_name}")
@@ -136,13 +152,15 @@ def price_check_flow(card_info):
         print("需要购买的卡与点击的卡不符，已返回上一层")
         return False
 
-    print(f"基准价格: {base_price} | 理想价格: {ideal_price} | 差价: {current_price - base_price} | 当前价格/溢价: {current_price}/{premium:.2f}% | 最高溢价：{max_price}")
+    print(f"理想价格: {ideal_price}  | 最高溢价：{max_price} | 差价: {current_price - ideal_price} | 当前价格/溢价%: {current_price}/{premium:.2f}%")
 
-    if premium < 0 or current_price < ideal_price or current_price - base_price <= 100000:
+    if premium < 0 or current_price < max_price:
         pyautogui.moveTo(screen_width * 0.825, screen_height * 0.852)
-        pyautogui.click()  # 再次点击确认购买
-        print(f"[+]已自动购买{card_name},价格为：{current_price},溢价：{premium:.2f}%")
-        log_purchase(card_name, current_price, premium)  # 调用日志记录函数
+        if not isDebug:
+            pyautogui.click()  # 点击购买
+
+        print(f"[+]已自动购买{card_name},理想价格为：{ideal_price},购买价格为：{current_price},溢价：{premium:.2f}%")
+        log_purchase(card_name, ideal_price, current_price, premium)  # 调用日志记录函数
         time.sleep(0.5)  # 避免重复操作
         if not esc_pressed:
             pyautogui.press('esc')  # 立即返回上一层
@@ -179,7 +197,7 @@ def main():
         return
 
     # 过滤出需要购买的卡牌
-    cards_to_buy = [card for card in keys_config if card.get('wantBuy', 0) == 1]
+    cards_to_buy = [card for card in keys_config if card.get('want_buy', 0) == 1]
     if not cards_to_buy:
         print("没有需要购买的门卡，程序退出")
         return
@@ -198,9 +216,10 @@ def main():
                     break
                 print(f"正在检查门卡: {card_info['name']}")
                 if price_check_flow(card_info):
-                #     cards_to_buy.remove(card_info)
-                #     print(f"剩余购买队列：{cards_to_buy}")
-                    continue
+                  if not isLoop:
+                    cards_to_buy.remove(card_info)
+                    print(f"剩余购买队列：{cards_to_buy}")
+                  continue
                 time.sleep(0.1)
         elif is_paused:
             print("循环已暂停，等待手动恢复...")

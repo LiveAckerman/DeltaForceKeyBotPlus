@@ -1,0 +1,96 @@
+{
+  "isDebug": false, // 是否开启调试模式，调试模式下不会自动购买钥匙，方便调试
+  "isLoop": true, // 是否开启调试模式，调试模式下不会自动购买钥匙，方便调试
+  "keys": [
+    {
+      "name": "总裁会议室", //  目标卡牌名称，需与游戏保持一致，如果识别中文有问题，或者识别错了比如 总裁会议室 识别成了 总载会议室 之类的，可以在这里修改成数组，["总裁会议室", "总载会议室"]
+      "floating_percentage_range": 0.1, // 价格浮动范围0-1，单位为百分比，默认0.1，表示10%的浮动范围，逻辑就是  ideal_price + (ideal_price * floating_percentage_range) > 识别到当前卡的价格就会购买
+      "ideal_price": 3000000, // 钥匙卡的理想价格，识别到当前的价格小于理想价格时就会购买
+      "position": [
+        0.5926,
+        0.1963
+      ], // 钥匙卡的坐标通过 debug.py 脚本获取
+      "want_buy": 1 // 是否购买，1为购买，0为不购买
+    },
+    {
+      "name": "地下金库储藏间",
+      "floating_percentage_range": 100000,
+      "ideal_price": 2500000,
+      "position": [
+        0.3398,
+        0.1781
+      ],
+      "want_buy": 0
+    },
+    {
+      "name": "旅店用餐间",
+      "floating_percentage_range": 100000,
+      "ideal_price": 1800000,
+      "position": [
+        0.8332,
+        0.1819
+      ],
+      "want_buy": 0
+    },
+    {
+      "name": "老浴场贵宾室",
+      "floating_percentage_range": 100000,
+      "ideal_price": 1300000,
+      "position": [
+        0.7969,
+        0.3063
+      ],
+      "want_buy": 0
+    },
+    {
+      "name": "博物馆展厅套间",
+      "floating_percentage_range": 100000,
+      "ideal_price": 1300000,
+      "position": [
+        0.6031,
+        0.3100
+      ],
+      "want_buy": 0
+    },
+    {
+      "name": "医疗会议室",
+      "floating_percentage_range": 100000,
+      "ideal_price": 1200000,
+      "position": [
+        0.3391,
+        0.4606
+      ],
+      "want_buy": 0
+    },
+    {
+      "name": "Relink植入手术室",
+      "floating_percentage_range": 100000,
+      "ideal_price": 1362675,
+      "position": [
+        0.2863,
+        0.3256
+      ],
+      "want_buy": 0
+    },
+    {
+      "name": "巴别塔供电权限卡",
+      "floating_percentage_range": 100000,
+      "ideal_price": 500000,
+      "position": [
+        0.5707,
+        0.8562
+      ],
+      "want_buy": 0
+    },
+    {
+      "name": "1号审讯室",
+      "floating_percentage_range": 100000,
+      "ideal_price": 900000,
+      "position": [
+        0.8641,
+        0.5014
+      ],
+      "want_buy": 0
+    }
+  ]
+}
