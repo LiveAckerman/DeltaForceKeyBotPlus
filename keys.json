@@ -1,0 +1,94 @@
+{
+  "keys": [
+    {
+      "name": "总裁会议室",
+      "base_price": 2900000,
+      "ideal_price": 3000000,
+      "position": [
+        0.5926,
+        0.1963
+      ],
+      "wantBuy": 1
+    },
+    {
+      "name": "地下金库储藏间",
+      "base_price": 2500000,
+      "ideal_price": 2500000,
+      "position": [
+        0.3398,
+        0.1781
+      ],
+      "wantBuy": 1
+    },
+    {
+      "name": "旅店用餐间",
+      "base_price": 1700000,
+      "ideal_price": 1800000,
+      "position": [
+        0.8332,
+        0.1819
+      ],
+      "wantBuy": 0
+    },
+    {
+      "name": "老浴场贵宾室",
+      "base_price": 1200000,
+      "ideal_price": 1300000,
+      "position": [
+        0.7969,
+        0.3063
+      ],
+      "wantBuy": 0
+    },
+    {
+      "name": "博物馆展厅套间",
+      "base_price": 1200000,
+      "ideal_price": 1300000,
+      "position": [
+        0.6031,
+        0.3100
+      ],
+      "wantBuy": 0
+    },
+    {
+      "name": "医疗会议室",
+      "base_price": 1100000,
+      "ideal_price": 1200000,
+      "position": [
+        0.3391,
+        0.4606
+      ],
+      "wantBuy": 0
+    },
+    {
+      "name": "Relink植入手术室",
+      "base_price": 1262675,
+      "ideal_price": 1362675,
+      "position": [
+        0.2863,
+        0.3256
+      ],
+      "wantBuy": 0
+    },
+    {
+      "name": "巴别塔供电权限卡",
+      "base_price": 450000,
+      "ideal_price": 500000,
+      "position": [
+        0.5707,
+        0.8562
+      ],
+      "wantBuy": 0
+    },
+    {
+      "name": "1号审讯室",
+      "base_price": 900000,
+      "ideal_price": 900000,
+      "position": [
+        0.8641,
+        0.5014
+      ],
+      "wantBuy": 0
+    }
+  ]
+}
