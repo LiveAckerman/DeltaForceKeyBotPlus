@@ -1,5 +1,5 @@
 {
-  "isDebug": false, // 是否开启调试模式，调试模式下不会自动购买钥匙，方便调试
+  "isDebug": true, // 是否开启调试模式，调试模式下不会自动购买钥匙，方便调试
   "isLoop": true, // 是否开启调试模式，调试模式下不会自动购买钥匙，方便调试
   "keys": [
     {
@@ -10,11 +10,11 @@
         0.5926,
         0.1963
       ], // 钥匙卡的坐标通过 debug.py 脚本获取
-      "want_buy": 1 // 是否购买，1为购买，0为不购买
+      "want_buy": 0 // 是否购买，1为购买，0为不购买
     },
     {
       "name": "地下金库储藏间",
-      "floating_percentage_range": 100000,
+      "floating_percentage_range": 0.1,
       "ideal_price": 2500000,
       "position": [
         0.3398,
@@ -24,7 +24,7 @@
     },
     {
       "name": "旅店用餐间",
-      "floating_percentage_range": 100000,
+      "floating_percentage_range": 0.1,
       "ideal_price": 1800000,
       "position": [
         0.8332,
@@ -34,7 +34,7 @@
     },
     {
       "name": "老浴场贵宾室",
-      "floating_percentage_range": 100000,
+      "floating_percentage_range": 0.1,
       "ideal_price": 1300000,
       "position": [
         0.7969,
@@ -44,7 +44,7 @@
     },
     {
       "name": "博物馆展厅套间",
-      "floating_percentage_range": 100000,
+      "floating_percentage_range": 0.1,
       "ideal_price": 1300000,
       "position": [
         0.6031,
@@ -54,7 +54,7 @@
     },
     {
       "name": "医疗会议室",
-      "floating_percentage_range": 100000,
+      "floating_percentage_range": 0.1,
       "ideal_price": 1200000,
       "position": [
         0.3391,
@@ -64,7 +64,7 @@
     },
     {
       "name": "Relink植入手术室",
-      "floating_percentage_range": 100000,
+      "floating_percentage_range": 0.1,
       "ideal_price": 1362675,
       "position": [
         0.2863,
@@ -74,7 +74,7 @@
     },
     {
       "name": "巴别塔供电权限卡",
-      "floating_percentage_range": 100000,
+      "floating_percentage_range": 0.1,
       "ideal_price": 500000,
       "position": [
         0.5707,
@@ -84,13 +84,23 @@
     },
     {
       "name": "1号审讯室",
-      "floating_percentage_range": 100000,
+      "floating_percentage_range": 0.1,
       "ideal_price": 900000,
       "position": [
         0.8641,
         0.5014
       ],
       "want_buy": 0
+    },
+    {
+      "name": "牧场管理房",
+      "floating_percentage_range": 0.1,
+      "ideal_price": 1000000,
+      "position": [
+        0.3109,
+        0.8231
+      ],
+      "want_buy": 1
     }
   ]
 }
