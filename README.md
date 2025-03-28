@@ -1,3 +1,5 @@
+# 本项目基于 [sheldon1998/DeltaForceKeyBot](https://github.com/sheldon1998/DeltaForceKeyBot) 上面进行修改优化的
+
 # 免责声明
 免责声明
 脚本仅供学习和研究目的使用，作者不对因使用该脚本而导致的任何后果负责。使用该脚本的风险完全由用户自行承担。
