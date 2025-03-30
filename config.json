@@ -1,6 +1,10 @@
 {
   "is_debug": true,
   "is_loop": true,
+  "purchase_btn_location": [
+    0.825,
+    0.86
+  ],
   "card_name_range": [
     1969,
     209,

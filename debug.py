@@ -124,6 +124,23 @@ def configure_card_positions(config):
           # 保存到配置文件
           save_config(config)
 
+def configure_purchase_button(config):
+    """配置购买按钮的位置"""
+    print("请将鼠标移动到购买按钮的位置并按下空格键...")
+    keyboard.wait('space')  # 等待用户按下空格键
+    x, y = pyautogui.position()
+
+    # 计算百分比（保留4位小数）
+    x_percent = round(x / screen_width, 4)
+    y_percent = round(y / screen_height, 4)
+
+    # 更新 purchase_btn_location 值
+    config["purchase_btn_location"] = [x_percent, y_percent]
+    print(f"购买按钮的位置已更新为: {config['purchase_btn_location']}")
+
+    # 保存到配置文件
+    save_config(config)
+
 def main():
     config = load_config()
 
@@ -131,13 +148,16 @@ def main():
         print("\n请选择要执行的操作：")
         print("1. 配置钥匙卡名称和价格位置")
         print("2. 配置钥匙卡位置")
+        print("3. 配置购买按钮位置")  # 新增选项
         print("0. 退出程序")
-        choice = input("请输入选项编号（0、1 或 2）：").strip()
+        choice = input("请输入选项编号（0、1、2 或 3）：").strip()
 
         if choice == "1":
             configure_card_regions(config)
         elif choice == "2":
             configure_card_positions(config)
+        elif choice == "3":  # 新增选项处理
+            configure_purchase_button(config)
         elif choice == "0":
             print("程序已退出。")
             break

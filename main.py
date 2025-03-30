@@ -20,6 +20,7 @@ pytesseract.pytesseract.tesseract_cmd = r'C:\Program Files\Tesseract-OCR\tessera
 
 # 全局变量
 keys_config = None
+purchase_btn_location = None  # 新增变量
 is_loop = False
 is_debug = True
 is_running = False
@@ -127,7 +128,7 @@ def log_purchase(card_name, ideal_price, price, premium):
 
 def price_check_flow(card_info, config):
     """价格检查主流程"""
-    global is_debug
+    global is_debug, purchase_btn_location
     position = card_info.get('position')
     if not position or len(position) != 2:
         print(f"[错误] 卡片 {card_info.get('name')} 的 position 配置无效")
@@ -162,7 +163,7 @@ def price_check_flow(card_info, config):
     print(f"理想价格: {ideal_price} | 最高价格: {max_price} | 当前价格: {current_price} | 溢价: {premium:.2f}%")
 
     if premium < 0 or current_price < max_price:
-        pyautogui.moveTo(screen_width * 0.825, screen_height * 0.86)
+        pyautogui.moveTo(screen_width * purchase_btn_location[0], screen_height * purchase_btn_location[1])
         if not is_debug:
             print("点击购买")
         #     pyautogui.click()
@@ -176,10 +177,13 @@ def price_check_flow(card_info, config):
 
 
 def main():
-    global is_running, is_paused, is_loop, is_debug
+    global is_running, is_paused, is_loop, is_debug, purchase_btn_location
 
     # 加载配置文件
     config = load_config()
+
+    # 从配置文件中获取 purchase_btn_location 的值
+    purchase_btn_location = config.get("purchase_btn_location", [0.825, 0.86])
 
     # 从配置文件中获取 is_debug 和 is_loop 的值
     is_debug = config.get("is_debug", True)  # 默认值为 False
