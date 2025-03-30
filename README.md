@@ -17,8 +17,9 @@
 
 ## 开始
 ### 安装
-1. 下载本代码,安装requirement.txt
-2. 安装[tesseract](https://github.com/tesseract-ocr/tesseract)  也可以在本项目的resources/tesseract-ocr-w64-setup-5.5.0.20241111.exe直接进行安装
+注：未安装[python](https://wwjk.lanzoue.com/i22Gf2rxn75i)请先安装
+1. 下载本代码,安装requirement.txt,可执行项目下的 bin/run_install.bat 进行安装
+2. 安装[tesseract](https://github.com/tesseract-ocr/tesseract) | [兰奏云](https://wwjk.lanzoue.com/i0b4k2rxn8kj)
 3. 下载[tesseract中文识别库](https://github.com/tesseract-ocr/tessdata)
 4. 修改代码中的环境变量为本机安装的位置
 ```
@@ -28,13 +29,18 @@ os.environ["TESSDATA_PREFIX"] = r"E:\Code\DeltaForce\tessdata-4.1.0\tessdata-4.1
 pytesseract.pytesseract.tesseract_cmd = r'C:\Program Files\Tesseract-OCR\tesseract.exe'
 ```
 
-## 运行
-### 运行 python main.py 时 必须要用管理员黑窗口运行，否则可能会出现触发不了模拟按键
+## 配置
+### 运行项目下的 bin/run_debug.py
+![image](https://github.com/user-attachments/assets/b76727bc-d126-47a5-a3ed-964f9221d38c)
+![image](https://github.com/user-attachments/assets/b76727bc-d126-47a5-a3ed-964f9221d38c)
+![image](https://github.com/user-attachments/assets/b76727bc-d126-47a5-a3ed-964f9221d38c)
 
+## 运行
+### 运行 python main.py 时 必须要用管理员黑窗口运行，否则触发不了模拟点击和按键，可以直接右键管理员运行项目下的 bin/run.bat
 ```
 python main.py
 ```
-F8开始抢卡,F9暂停抢卡,脚本已适配不同分辨率(16:9)以及多显示器的场景
+F8开始抢卡,F9暂停脚本已适配不同分辨率(16:9)以及多显示器的场景
 开始抢卡时需要将页面点击到买卡的区域,如下图项目默认只配置了交易行>钥匙>巴克什 页面如下图的的部分钥匙坐标数据,
 ![image](https://github.com/user-attachments/assets/b76727bc-d126-47a5-a3ed-964f9221d38c)
 
