@@ -159,7 +159,7 @@ def price_check_flow(card_info, config):
         pyautogui.press('esc')
         return False
 
-    print(f"理想价格: {ideal_price} | 当前价格: {current_price} | 溢价: {premium:.2f}%")
+    print(f"理想价格: {ideal_price} | 最高价格: {max_price} | 当前价格: {current_price} | 溢价: {premium:.2f}%")
 
     if premium < 0 or current_price < max_price:
         pyautogui.moveTo(screen_width * 0.825, screen_height * 0.86)
