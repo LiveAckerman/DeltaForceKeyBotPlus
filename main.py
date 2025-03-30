@@ -155,8 +155,8 @@ def price_check_flow(card_info, config):
     max_price = ideal_price + (ideal_price * floating_percentage_range)
     premium = ((current_price / ideal_price) - 1) * 100
 
-    if card_name not in card_info.get("name", ""):
-        print("需要购买的卡与点击的卡不符，已返回上一层")
+    if card_name not in card_info.get("name", []):
+        print(f"识别到的卡片名称: {card_name},需要购买的卡片名称: {card_info.get('name')}，需要购买的卡与点击的卡不符，已返回上一层")
         pyautogui.press('esc')
         return False
 

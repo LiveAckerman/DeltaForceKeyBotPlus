@@ -1,5 +1,5 @@
 {
-  "is_debug": true,
+  "is_debug": false,
   "is_loop": true,
   "purchase_btn_location": [
     0.825,
