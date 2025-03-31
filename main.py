@@ -2,18 +2,24 @@ import json
 import pyautogui
 import time
 from PIL import Image
-import pytesseract
 import os
 import keyboard
 import datetime
+import logging
+from paddleocr import PaddleOCR
+
+# 禁用 PaddleOCR 调试日志
+os.environ["PPOCR_LOG_LEVEL"] = "ERROR"
+logging.getLogger("ppocr").setLevel(logging.ERROR)
+
+# 初始化 PaddleOCR
+ocr = PaddleOCR(use_angle_cls=True, lang='ch')  # 支持中文
+# 初始化一个仅用于识别数字的英文模型
+ocr_english = PaddleOCR(use_angle_cls=True, lang='en')  # 使用英文模型
+
 
 # 配置部分
 CONFIG_FILE = 'config.json'
-
-# Tesseract 环境配置
-os.environ["LANGDATA_PATH"] = r"D:\my_project\DeltaForceKeyBotPlus-main\tessdata-4.1.0"
-os.environ["TESSDATA_PREFIX"] = r"D:\my_project\DeltaForceKeyBotPlus-main\tessdata-4.1.0"
-pytesseract.pytesseract.tesseract_cmd = r'C:\Program Files\Tesseract-OCR\tesseract.exe'
 
 # 全局变量
 keys_config = None
@@ -72,7 +78,7 @@ def take_screenshot(region, threshold):
 
 
 def get_card_price(config):
-    """获取当前卡片价格，仅识别阿拉伯数字"""
+    """获取当前门卡价格，仅识别阿拉伯数字"""
     region = get_region_from_config(config, "card_price_range")
     if not region:
         return None
@@ -82,14 +88,28 @@ def get_card_price(config):
         return None
 
     image.save("./images/card_price.png")
-    text = pytesseract.image_to_string(image, lang='eng', config="--psm 13 -c tessedit_char_whitelist=0123456789")
-    text = text.replace(",", "").replace(" ", "")
+    # 使用 PaddleOCR 识别价格
+    result = ocr_english.ocr("./images/card_price.png", cls=True)
+    if not result or not result[0]:
+        print("无法识别价格")
+        return None
 
-    if text.startswith('0'):
-        text = text[1:]
+    # 提取识别的文本
+    text = result[0][0][1][0]  # 获取第一个识别结果的文字部分
+
+    if is_debug:
+      print(f"提取的门卡原始价格文本------------: {text}")
+
+    # 只保留数字字符
+    text = ''.join(filter(str.isdigit, text))
+
+    if not text:
+        print("未识别到有效数字")
+        return None
+
     try:
         price = int(text)
-        print(f"提取的价格文本: {price}")
+        print(f"提取的门卡价格文本: {price}")
         return price
     except ValueError:
         print("无法解析价格")
@@ -97,7 +117,7 @@ def get_card_price(config):
 
 
 def get_card_name(config):
-    """获取当前卡片名称"""
+    """获取当前门卡名称"""
     region = get_region_from_config(config, "card_name_range")
     if not region:
         return None
@@ -107,18 +127,21 @@ def get_card_name(config):
         return None
 
     screenshot.save("./images/card_name.png")
+    # 使用 PaddleOCR 识别门卡名称
+    result = ocr.ocr("./images/card_name.png", cls=True)
+    if not result or not result[0]:
+        print("无法识别门卡名称")
+        return None
 
-    text = pytesseract.image_to_string(
-        screenshot,
-        lang='chi_sim',
-        config="--psm 7"
-    )
+    # 提取识别的文本
+    text = result[0][0][1][0]  # 获取第一个识别结果的文字部分
+    print(f"提取的门卡名称文本: {text}")
     return text.replace(" ", "").strip()
 
 
 def log_purchase(card_name, ideal_price, price, premium):
     """记录购买信息到 logs.txt"""
-    log_entry = f"购买时间：{datetime.datetime.now():%Y-%m-%d %H:%M:%S} | 卡片名称: {card_name} | 理想价格: {ideal_price} | 购买价格: {price} | 溢价: {premium:.2f}%\n"
+    log_entry = f"购买时间：{datetime.datetime.now():%Y-%m-%d %H:%M:%S} | 门卡名称: {card_name} | 理想价格: {ideal_price} | 购买价格: {price} | 溢价: {premium:.2f}%\n"
     with open("logs.txt", "a", encoding="utf-8") as log_file:
         log_file.write(log_entry)
 
@@ -128,7 +151,7 @@ def price_check_flow(card_info, config):
     global is_debug, purchase_btn_location
     position = card_info.get('position')
     if not position or len(position) != 2:
-        print(f"[错误] 卡片 {card_info.get('name')} 的 position 配置无效")
+        print(f"[错误] 门卡 {card_info.get('name')} 的 position 配置无效")
         return False
 
     pyautogui.moveTo(position[0] * screen_width, position[1] * screen_height)
@@ -137,7 +160,7 @@ def price_check_flow(card_info, config):
 
     card_name = get_card_name(config)
     if not card_name:
-        print("无法获取卡片名称，跳过本次检查")
+        print("无法获取门卡名称，跳过本次检查")
         pyautogui.press('esc')
         return False
 
@@ -153,7 +176,7 @@ def price_check_flow(card_info, config):
     premium = ((current_price / ideal_price) - 1) * 100
 
     if card_name not in card_info.get("name", []):
-        print(f"识别到的卡片名称: {card_name},需要购买的卡片名称: {card_info.get('name')}，需要购买的卡与点击的卡不符，已返回上一层")
+        print(f"识别到的门卡名称: {card_name},需要购买的门卡名称: {card_info.get('name')}，需要购买的卡与点击的卡不符，已返回上一层")
         pyautogui.press('esc')
         return False
 
@@ -162,8 +185,7 @@ def price_check_flow(card_info, config):
     if premium < 0 or current_price < max_price:
         pyautogui.moveTo(screen_width * purchase_btn_location[0], screen_height * purchase_btn_location[1])
         if not is_debug:
-            print("点击购买")
-        #     pyautogui.click()
+            pyautogui.click()
         log_purchase(card_name, ideal_price, current_price, premium)
         pyautogui.press('esc')
         return True
@@ -192,7 +214,7 @@ def main():
         print("配置文件中没有找到有效的 keys 配置，程序退出")
         return
 
-    # 筛选需要购买的卡片
+    # 筛选需要购买的门卡
     cards_to_buy = [card for card in keys_config if card.get('want_buy', 0) == 1]
     if not cards_to_buy:
         print("没有需要购买的门卡，程序退出")
@@ -230,6 +252,14 @@ def set_running_state(state):
     global is_running
     is_running = state
 
+def test():
+   result = ocr_english.ocr("./images/card_price.png", cls=True)
+   text = result[0][0][1][0]  # 获取第一个识别结果的文字部分
+   # 只保留数字字符
+   text = ''.join(filter(str.isdigit, text))
+   print(f"识别结果: {text}")
+
 
 if __name__ == "__main__":
     main()
+    # test()
