@@ -6,9 +6,6 @@ import pytesseract
 import os
 import keyboard
 import datetime
-import re
-import cv2
-import numpy as np
 
 # 配置部分
 CONFIG_FILE = 'config.json'

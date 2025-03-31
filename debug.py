@@ -1,7 +1,6 @@
 import pyautogui
 import keyboard
 import json
-import time
 
 CONFIG_FILE = "config.json"  # 配置文件路径
 

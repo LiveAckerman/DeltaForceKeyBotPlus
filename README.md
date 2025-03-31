@@ -31,10 +31,10 @@ pytesseract.pytesseract.tesseract_cmd = r'C:\Program Files\Tesseract-OCR\tessera
 
 ## 配置
 ### 运行项目下的 bin/run_debug.py
-![image](https://github.com/LiveAckerman/image_repository/blob/main/DeltaForceKeyBotPlus/0.png)
-![image](https://github.com/LiveAckerman/image_repository/blob/main/DeltaForceKeyBotPlus/1.png)
-![image](https://github.com/LiveAckerman/image_repository/blob/main/DeltaForceKeyBotPlus/2.png)
-![image](https://github.com/LiveAckerman/image_repository/blob/main/DeltaForceKeyBotPlus/3.png)
+![image](https://raw.githubusercontent.com/LiveAckerman/image_repository/refs/heads/main/DeltaForceKeyBotPlus/0.png)
+![image](https://raw.githubusercontent.com/LiveAckerman/image_repository/refs/heads/main/DeltaForceKeyBotPlus/1.png)
+![image](https://raw.githubusercontent.com/LiveAckerman/image_repository/refs/heads/main/DeltaForceKeyBotPlus/2.png)
+![image](https://raw.githubusercontent.com/LiveAckerman/image_repository/refs/heads/main/DeltaForceKeyBotPlus/3.png)
 
 ## 运行
 ### 运行 python main.py 时 必须要用管理员黑窗口运行，否则触发不了模拟点击和按键，可以直接右键管理员运行项目下的 bin/run.bat
