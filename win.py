@@ -4,7 +4,7 @@ import pygetwindow as gw  # 使用 pygetwindow 库
 import pyautogui
 import datetime
 from PyQt5.QtWidgets import (
-    QApplication, QMainWindow, QVBoxLayout, QHBoxLayout, QLabel, QComboBox, QPushButton, QWidget, QMessageBox, QTextEdit
+    QApplication, QMainWindow, QVBoxLayout, QHBoxLayout, QLabel, QComboBox, QPushButton, QWidget, QMessageBox, QTextEdit, QCheckBox
 )
 from PyQt5.QtCore import Qt, QRect, QPoint
 from PyQt5.QtGui import QPainter, QPen, QPixmap, QScreen, QImage
@@ -65,6 +65,22 @@ class ConfigApp(QMainWindow):
 
         # 左侧布局
         left_layout = QVBoxLayout()
+
+        # 配置开关按钮
+        config_layout = QHBoxLayout()
+        self.debug_checkbox = QCheckBox("调试模式 (is_debug)", self)
+        self.debug_checkbox.setChecked(read_config_field("is_debug", False))  # 从配置文件读取初始值
+        self.debug_checkbox.setStyleSheet("font-size: 16px;margin-bottom: 10px;")
+        self.debug_checkbox.stateChanged.connect(self.toggle_debug_mode)
+        config_layout.addWidget(self.debug_checkbox)
+
+        self.loop_checkbox = QCheckBox("循环模式 (is_loop)", self)
+        self.loop_checkbox.setChecked(read_config_field("is_loop", False))  # 从配置文件读取初始值
+        self.loop_checkbox.setStyleSheet("font-size: 16px;margin-bottom: 10px;")
+        self.loop_checkbox.stateChanged.connect(self.toggle_loop_mode)
+        config_layout.addWidget(self.loop_checkbox)
+
+        left_layout.addLayout(config_layout)
 
         # 第一行：主操作选择和具体配置内容
         operation_layout = QHBoxLayout()
@@ -289,6 +305,18 @@ class ConfigApp(QMainWindow):
 
         else:
             QMessageBox.warning(self, "提示", "当前配置内容无法保存！")
+
+    def toggle_debug_mode(self, state):
+        """切换调试模式"""
+        is_debug = state == Qt.Checked
+        write_config_field("is_debug", is_debug)
+        self.log_message(f"调试模式已设置为: {is_debug}")
+
+    def toggle_loop_mode(self, state):
+        """切换循环模式"""
+        is_loop = state == Qt.Checked
+        write_config_field("is_loop", is_loop)
+        self.log_message(f"循环模式已设置为: {is_loop}")
 
     def apply_styles(self):
         """应用样式表"""
