@@ -162,7 +162,6 @@ class ConfigApp(QMainWindow):
                 print(f"删除控件：{widget}")
                 if widget:
                     widget.deleteLater()
-                    /
             self.update()  # 刷新界面
 
     def start_configuration(self):
