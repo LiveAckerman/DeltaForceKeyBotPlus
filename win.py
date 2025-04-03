@@ -3,8 +3,9 @@ import json
 import pygetwindow as gw  # 使用 pygetwindow 库
 import pyautogui
 import datetime
+import time
 from PyQt5.QtWidgets import (
-    QApplication, QMainWindow, QVBoxLayout, QHBoxLayout, QLabel, QComboBox, QPushButton, QWidget, QMessageBox, QTextEdit, QCheckBox
+    QApplication, QMainWindow, QVBoxLayout, QHBoxLayout, QLabel, QComboBox, QPushButton, QWidget, QMessageBox, QTextEdit, QCheckBox, QLineEdit, QDoubleSpinBox, QSpinBox
 )
 from PyQt5.QtCore import Qt, QRect, QPoint
 from PyQt5.QtGui import QPainter, QPen, QPixmap, QScreen, QImage
@@ -70,13 +71,11 @@ class ConfigApp(QMainWindow):
         config_layout = QHBoxLayout()
         self.debug_checkbox = QCheckBox("调试模式 (is_debug)", self)
         self.debug_checkbox.setChecked(read_config_field("is_debug", False))  # 从配置文件读取初始值
-        self.debug_checkbox.setStyleSheet("font-size: 16px;margin-bottom: 10px;")
         self.debug_checkbox.stateChanged.connect(self.toggle_debug_mode)
         config_layout.addWidget(self.debug_checkbox)
 
         self.loop_checkbox = QCheckBox("循环模式 (is_loop)", self)
         self.loop_checkbox.setChecked(read_config_field("is_loop", False))  # 从配置文件读取初始值
-        self.loop_checkbox.setStyleSheet("font-size: 16px;margin-bottom: 10px;")
         self.loop_checkbox.stateChanged.connect(self.toggle_loop_mode)
         config_layout.addWidget(self.loop_checkbox)
 
@@ -106,26 +105,26 @@ class ConfigApp(QMainWindow):
         left_layout.addLayout(operation_layout)
 
         # 第二行：框选区域文字、截图和保存配置按钮
-        screenshot_row_layout = QVBoxLayout()
+        self.screenshot_row_layout = QVBoxLayout()  # 将 screenshot_row_layout 定义为实例属性
         self.screenshot_label_text = QLabel("框选区域：")
-        screenshot_row_layout.addWidget(self.screenshot_label_text)
+        self.screenshot_row_layout.addWidget(self.screenshot_label_text)
 
         self.screenshot_label = QLabel(self)
         self.screenshot_label.setFixedSize(400, 300)
         self.screenshot_label.setStyleSheet("border: 1px solid #ccc;")  # 添加边框
-        screenshot_row_layout.addWidget(self.screenshot_label)
+        self.screenshot_row_layout.addWidget(self.screenshot_label)
 
         # 框选区域提示信息
         self.selection_info_label = QLabel("框选区域：[x=0, y=0, 宽=0, 高=0]")
         self.selection_info_label.setStyleSheet("font-size: 16px; color: #ff0000;")
-        screenshot_row_layout.addWidget(self.selection_info_label)
+        self.screenshot_row_layout.addWidget(self.selection_info_label)
 
         # 保存配置按钮
         self.save_button = QPushButton("保存配置", self)
         self.save_button.clicked.connect(self.save_configuration)
-        screenshot_row_layout.addWidget(self.save_button)
+        self.screenshot_row_layout.addWidget(self.save_button)
 
-        left_layout.addLayout(screenshot_row_layout)
+        left_layout.addLayout(self.screenshot_row_layout)
 
         # 右侧布局：日志显示
         right_layout = QVBoxLayout()
@@ -153,25 +152,18 @@ class ConfigApp(QMainWindow):
         timestamp = datetime.datetime.now().strftime("%Y-%m-%d %H:%M:%S")
         self.log_text.append(f"[{timestamp}] {message}")
 
-    def update_secondary_options(self, index):
-        """根据主操作选择更新第二个下拉框的选项"""
-        self.secondary_combo_box.clear()  # 清空第二个下拉框的选项
-
-        if index == 1:  # 配置钥匙卡名称和价格位置
-            self.secondary_combo_box.addItem("钥匙卡的名称区域")
-            self.secondary_combo_box.addItem("钥匙卡的价格区域")
-        elif index == 2:  # 配置钥匙卡位置
-            # 从 config.json 中读取 keys 数组
-            keys = read_config_field("keys", [])
-            if keys:
-                for key in keys:
-                    self.secondary_combo_box.addItem(key.get("name", "未知钥匙卡"))
-            else:
-                self.secondary_combo_box.addItem("未找到钥匙卡数据")
-        elif index == 3:  # 配置购买按钮位置
-            self.secondary_combo_box.addItem("购买按钮位置")
-        else:
-            self.secondary_combo_box.addItem("请选择具体配置内容")
+    def hide_card_info(self):
+        """隐藏钥匙卡的详细信息"""
+        if hasattr(self, "card_info_layout"):
+            print("清空 card_info_layout 中的控件")
+            while self.card_info_layout.count():
+                item = self.card_info_layout.takeAt(0)
+                widget = item.widget()
+                print(f"删除控件：{widget}")
+                if widget:
+                    widget.deleteLater()
+                    /
+            self.update()  # 刷新界面
 
     def start_configuration(self):
         """处理开始配置按钮点击事件"""
@@ -188,23 +180,189 @@ class ConfigApp(QMainWindow):
                 break
 
         if target_window:
+            # 最小化主窗口
+            self.showMinimized()
+
             target_window.activate()  # 激活“三角洲”窗口
             self.log_message(f"已激活窗口：{target_window.title}")
+
+            # 打开全屏透明窗口
+            self.selection_window = SelectionWindow(self)
+            self.selection_window.show()
+
+            # 再次激活全屏透明窗口
+            time.sleep(0.2)  # 等待窗口激活
+            self.selection_window.activateWindow()
+            self.selection_window.setFocus()
         else:
             QMessageBox.warning(self, "提示", "未找到标题包含“三角洲”的窗口！")
             self.log_message("未找到标题包含“三角洲”的窗口！")
             return
 
-        # 最小化主窗口
-        self.showMinimized()
+        main_option = self.main_combo_box.currentText()
 
-        # 打开全屏透明窗口
-        self.selection_window = SelectionWindow(self)
-        self.selection_window.show()
+        if main_option == "配置钥匙卡位置":
+            # 获取选中的钥匙卡
+            selected_option = self.secondary_combo_box.currentText()
+            keys = read_config_field("keys", [])
+            selected_card = None
+            for card in keys:
+                if card.get("name") == selected_option:
+                    selected_card = card
+                    break
 
-        # 再次激活全屏透明窗口
-        self.selection_window.activateWindow()
-        self.selection_window.setFocus()
+            if not selected_card:
+                QMessageBox.warning(self, "提示", f"未找到名称为 {selected_option} 的钥匙卡！")
+                return
+
+            # 显示钥匙卡信息编辑控件
+            self.display_card_info(selected_card)
+
+        else:
+            # 隐藏钥匙卡信息编辑控件
+            self.hide_card_info()
+
+            # 保持之前的逻辑
+            self.showMinimized()
+            self.selection_window = SelectionWindow(self)
+            self.selection_window.show()
+
+    def update_secondary_options(self, index):
+        """根据主操作选择更新第二个下拉框的选项"""
+        self.secondary_combo_box.clear()  # 清空第二个下拉框的选项
+        print(f"主操作选择：{self.main_combo_box.currentText()}")
+
+        # 重置框选区域
+        self.selection_area = None
+        self.selection_info_label.setText("框选区域：[x=0, y=0, 宽=0, 高=0]")
+
+        # 清空截图
+        self.screenshot_label.clear()
+
+        # 隐藏并清空卡片信息
+        self.hide_card_info()
+
+        time.sleep(0.2)  # 等待界面更新
+
+        if index == 1:  # 配置钥匙卡名称和价格位置
+            self.secondary_combo_box.addItem("钥匙卡的名称区域")
+            self.secondary_combo_box.addItem("钥匙卡的价格区域")
+        elif index == 2:  # 配置钥匙卡位置
+            # 从 config.json 中读取 keys 数组
+            keys = read_config_field("keys", [])
+            if keys:
+                for key in keys:
+                    self.secondary_combo_box.addItem(key.get("name", "未知钥匙卡"))
+            else:
+                self.secondary_combo_box.addItem("未找到钥匙卡数据")
+
+            # 监听具体配置内容的变化
+            self.secondary_combo_box.currentIndexChanged.connect(self.update_card_info)
+        elif index == 3:  # 配置购买按钮位置
+            self.secondary_combo_box.addItem("购买按钮位置")
+        else:
+            self.secondary_combo_box.addItem("请选择具体配置内容")
+
+    def update_card_info(self):
+        """更新钥匙卡的详细信息"""
+        if self.main_combo_box.currentText() == "配置钥匙卡位置":
+            # 获取选中的钥匙卡
+            selected_option = self.secondary_combo_box.currentText()
+            keys = read_config_field("keys", [])
+            selected_card = None
+            for card in keys:
+                if card.get("name") == selected_option:
+                    selected_card = card
+                    break
+
+            if selected_card:
+                # 更新显示的钥匙卡信息
+                self.display_card_info(selected_card)
+
+    def save_card_info(self, card):
+        """保存修改后的钥匙卡信息"""
+        # 更新卡片信息
+        card["name"] = self.name_input.text()
+        card["floating_percentage_range"] = round(self.floating_input.value(), 2)  # 限制为两位小数
+        card["ideal_price"] = self.ideal_price_input.value()
+        card["want_buy"] = 1 if self.want_buy_checkbox.isChecked() else 0
+
+        # 从配置文件中读取 keys 数组
+        keys = read_config_field("keys", [])
+        for i, existing_card in enumerate(keys):
+            if existing_card.get("name") == card["name"]:
+                keys[i] = card  # 更新对应的钥匙卡信息
+                break
+
+        # 保存更新后的 keys 数组到配置文件
+        write_config_field("keys", keys)
+
+        # 显示保存成功的提示
+        QMessageBox.information(self, "保存成功", f"钥匙卡 {card['name']} 的信息已保存！")
+
+        # 在日志中记录保存操作
+        self.log_message(f"钥匙卡 {card['name']} 的信息已更新：{card}")
+
+    def display_card_info(self, card):
+        """显示钥匙卡的详细信息"""
+        # 确保控件容器存在
+        if not hasattr(self, "card_info_layout"):
+            self.card_info_layout = QVBoxLayout()
+            self.screenshot_row_layout.insertLayout(0, self.card_info_layout)
+
+        # 清空现有控件
+        while self.card_info_layout.count():
+            widget = self.card_info_layout.takeAt(0).widget()
+            if widget:
+                widget.deleteLater()
+
+        # 钥匙卡名称
+        name_layout = QHBoxLayout()
+        name_label = QLabel("钥匙卡名称：")
+        name_label.setAlignment(Qt.AlignRight)
+        self.name_input = QLineEdit(card["name"], self)
+        self.name_input.setFixedWidth(320)
+        name_layout.addWidget(name_label)
+        name_layout.addWidget(self.name_input)
+        self.card_info_layout.addLayout(name_layout)
+
+        # 价格浮动百分比
+        floating_layout = QHBoxLayout()
+        floating_label = QLabel("价格浮动百分比：")
+        floating_label.setAlignment(Qt.AlignRight)
+        self.floating_input = QDoubleSpinBox(self)
+        self.floating_input.setValue(card["floating_percentage_range"])
+        self.floating_input.setDecimals(2)
+        self.floating_input.setSingleStep(0.01)
+        floating_layout.addWidget(floating_label)
+        floating_layout.addWidget(self.floating_input)
+        self.card_info_layout.addLayout(floating_layout)
+
+        # 钥匙卡价格
+        price_layout = QHBoxLayout()
+        price_label = QLabel("钥匙卡价格：")
+        price_label.setAlignment(Qt.AlignRight)
+        self.ideal_price_input = QSpinBox(self)
+        self.ideal_price_input.setMaximum(999999999)
+        self.ideal_price_input.setValue(card["ideal_price"])
+        price_layout.addWidget(price_label)
+        price_layout.addWidget(self.ideal_price_input)
+        self.card_info_layout.addLayout(price_layout)
+
+        # 是否购买
+        buy_layout = QHBoxLayout()
+        buy_label = QLabel("是否购买：")
+        buy_label.setAlignment(Qt.AlignRight)
+        self.want_buy_checkbox = QCheckBox("购买", self)
+        self.want_buy_checkbox.setChecked(card["want_buy"] == 1)
+        buy_layout.addWidget(buy_label)
+        buy_layout.addWidget(self.want_buy_checkbox)
+        self.card_info_layout.addLayout(buy_layout)
+
+        # 保存按钮
+        self.save_card_button = QPushButton("保存钥匙卡信息", self)
+        self.save_card_button.clicked.connect(lambda: self.save_card_info(card))
+        self.card_info_layout.addWidget(self.save_card_button)
 
     def display_screenshot(self, screenshot):
         """在主窗口中显示截图"""
