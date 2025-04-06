@@ -18,16 +18,6 @@
 ## 开始
 ### 安装
 注：未安装[python](https://wwjk.lanzoue.com/i22Gf2rxn75i)请先安装
-1. 下载本代码,安装requirement.txt,可执行项目下的 bin/run_install.bat 进行安装
-2. 安装[tesseract](https://github.com/tesseract-ocr/tesseract) | [兰奏云](https://wwjk.lanzoue.com/i0b4k2rxn8kj)
-3. 下载[tesseract中文识别库](https://github.com/tesseract-ocr/tessdata)
-4. 修改代码中的环境变量为本机安装的位置
-```
-# Tesseract 环境配置
-os.environ["LANGDATA_PATH"] = r"E:\Code\DeltaForce\tessdata-4.1.0\tessdata-4.1.0"
-os.environ["TESSDATA_PREFIX"] = r"E:\Code\DeltaForce\tessdata-4.1.0\tessdata-4.1.0"
-pytesseract.pytesseract.tesseract_cmd = r'C:\Program Files\Tesseract-OCR\tesseract.exe'
-```
 
 ## 配置
 ### 运行项目下的 bin/run_debug.py
