@@ -89,7 +89,7 @@ def get_card_price(config):
 
     image.save("./images/card_price.png")
     # 使用 PaddleOCR 识别价格
-    result = ocr_english.ocr("./images/card_price.png", cls=True)
+    result = ocr_english.ocr("./images/card_price.png", cls=False)
     if not result or not result[0]:
         print("无法识别价格")
         return None
