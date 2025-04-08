@@ -1,6 +1,6 @@
 # 本项目基于 [sheldon1998/DeltaForceKeyBot](https://github.com/sheldon1998/DeltaForceKeyBot) 上面进行修改优化的
-# Q群可以一起讨论抢卡脚本技术，大家一起学习，点击链接加入群聊【牛角洲鼠鼠抢卡】：[https://qm.qq.com/q/D8kq8ZUn8](https://qm.qq.com/q/D8kq8ZUn8)
-<img src="https://github.com/user-attachments/assets/c84ed4ce-c5f6-443d-9b71-fac868203168" alt="Image" height="200">
+## Q群可以一起讨论抢卡脚本技术，大家一起学习，点击链接加入群聊【牛角洲鼠鼠抢卡】：[https://qm.qq.com/q/D8kq8ZUn8](https://qm.qq.com/q/D8kq8ZUn8)
+<img src="https://github.com/user-attachments/assets/c84ed4ce-c5f6-443d-9b71-fac868203168" alt="Image" height="400">
 
 # 免责声明
 免责声明

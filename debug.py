@@ -36,6 +36,8 @@ def select_region(region_name):
     keyboard.wait('space')  # 等待用户按下空格键
     bottom_right = pyautogui.position()  # 用户按下空格键后记录右下角坐标
 
+    print(f"top_left：{top_left} bottom_right：{bottom_right} ")
+
     # 计算宽度和高度
     width = bottom_right.x - top_left.x
     height = bottom_right.y - top_left.y

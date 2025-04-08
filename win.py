@@ -1,5 +1,6 @@
 import sys
 import json
+import os
 import pygetwindow as gw  # 使用 pygetwindow 库
 import pyautogui
 import datetime
@@ -10,11 +11,14 @@ from PyQt5.QtWidgets import (
 from PyQt5.QtCore import Qt, QRect, QPoint
 from PyQt5.QtGui import QPainter, QPen, QPixmap, QScreen, QImage
 
+# 获取当前运行的目录（适配打包后的路径）
+BASE_DIR = getattr(sys, '_MEIPASS', os.path.dirname(os.path.abspath(__file__)))
 
 def read_config_field(field, default=None):
     """读取 config.json 中指定字段的值"""
+    config_path = os.path.join(BASE_DIR, "config.json")
     try:
-        with open("config.json", "r", encoding="utf-8") as f:
+        with open(config_path, "r", encoding="utf-8") as f:
             config = json.load(f)
         return config.get(field, default)
     except FileNotFoundError:
@@ -22,15 +26,16 @@ def read_config_field(field, default=None):
 
 def write_config_field(field, value):
     """写入 config.json 中指定字段的值"""
+    config_path = os.path.join(BASE_DIR, "config.json")
     try:
-        with open("config.json", "r", encoding="utf-8") as f:
+        with open(config_path, "r", encoding="utf-8") as f:
             config = json.load(f)
     except FileNotFoundError:
         config = {}
 
     config[field] = value
 
-    with open("config.json", "w", encoding="utf-8") as f:
+    with open(config_path, "w", encoding="utf-8") as f:
         json.dump(config, f, indent=4, ensure_ascii=False)
 
 
