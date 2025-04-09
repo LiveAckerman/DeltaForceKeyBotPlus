@@ -1,3 +1,4 @@
 tessdata-4.1.0/*
 *.png
 logs.txt
+dist/*
