@@ -110,6 +110,7 @@ def configure_card_positions(config):
           print(f"请将鼠标移动到 {card['name']} 的位置并按下空格键...")
           keyboard.wait('space')  # 等待用户按下空格键
           x, y = pyautogui.position()
+          print(f"选中的位置：{x}, {y}")
 
           # 计算百分比（保留4位小数）
           x_percent = round(x / screen_width, 4)
